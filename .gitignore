@@ -1,0 +1,6 @@
+/outputs
+/wandb
+/recycle_bin
+/checkpoints
+**/__pycache__
+/.ipynb_checkpoints
