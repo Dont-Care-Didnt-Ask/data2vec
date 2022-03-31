@@ -14,6 +14,7 @@ GRAD_ACCUM=$(($BATCH_SIZE / $MINIBATCH_SIZE / $N_GPUS))
 WANDB_DISABLED=True torchrun --nproc_per_node=$N_GPUS --master_port=$PORT1 main.py \
 --output_dir ./outputs/ \
 --overwrite_output_dir \
+--dataset_class ImagenetIterableYTDataset \
 --train_dir //home/yr/ILSVRC/train \
 --validation_dir //home/yr/ILSVRC/val \
 --dataloader_num_workers 16 \
@@ -33,5 +34,3 @@ WANDB_DISABLED=True torchrun --nproc_per_node=$N_GPUS --master_port=$PORT1 main.
 --image_size 224 \
 --mask_ratio 0.6 \
 
-#--train_dir /mnt/data/imagenet/train \
-#--validation_dir /mnt/data/imagenet/val \
