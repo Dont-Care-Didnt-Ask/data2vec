@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 
-class MaskGenerator:
+class SimpleMaskGenerator:
     """
     A class to generate boolean masks for the pretraining task.
     A mask is a 1D tensor of shape (model_patch_size**2,) where the value is either 0 or 1,

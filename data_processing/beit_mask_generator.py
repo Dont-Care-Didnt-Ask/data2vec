@@ -24,6 +24,7 @@ Modified by Hangbo Bao, for generating the masked position for visual image tran
 from lib2to3.pgen2.token import OP
 import random
 import math
+import torch
 import numpy as np
 
 from typing import Tuple, Union, Optional
@@ -97,4 +98,4 @@ class BEiTMaskingGenerator:
             else:
                 mask_count += delta
 
-        return mask
+        return torch.tensor(mask.flatten())
