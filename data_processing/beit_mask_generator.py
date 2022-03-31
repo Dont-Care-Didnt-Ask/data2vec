@@ -38,7 +38,7 @@ class BEiTMaskingGenerator:
         min_aspect: float = 0.3, 
         max_aspect: Optional[float] = None
     ):
-        # input size is in terms of tokens, e.g. (14, 14), taking (224, 224) picture with patch size 16
+        # input size is in terms of tokens, e.g. (14, 14) for (224, 224) picture with patch size 16
         if not isinstance(input_size, tuple):
             input_size = (input_size, input_size)
         self.height, self.width = input_size

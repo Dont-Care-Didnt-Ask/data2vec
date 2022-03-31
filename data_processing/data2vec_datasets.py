@@ -5,7 +5,7 @@ from torchvision.transforms import Compose, Lambda, RandomHorizontalFlip, Random
 from model_and_data_args import DataTrainingArguments, ModelArguments
 from data_processing import BEiTMaskingGenerator, SimpleMaskGenerator, ImagenetIterableYTDataset
 
-from typing import Any, Dict, Tuple, Iterable
+from typing import Dict, Tuple, Iterable
 
 IMAGENET_MEAN = (0.485, 0.456, 0.406)
 IMAGENET_STD = (0.229, 0.224, 0.225)
@@ -52,10 +52,10 @@ class DataAugmentationForData2Vec:
                 RandomHorizontalFlip(0.5),
                 ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4),
                 ToTensor(),
-                #Normalize(
-                #    mean=torch.tensor(IMAGENET_MEAN),
-                #    std=torch.tensor(IMAGENET_STD)
-                #)
+                Normalize(
+                    mean=torch.tensor(IMAGENET_MEAN),
+                    std=torch.tensor(IMAGENET_STD)
+                )
             ]
         )
     
