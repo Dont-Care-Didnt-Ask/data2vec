@@ -2,7 +2,9 @@ import torch
 from transformers.file_utils import ModelOutput
 from transformers.modeling_outputs import BaseModelOutput
 from transformers import ViTConfig
-from transformers import TrainerCallback, TrainingArguments, TrainerState, TrainerControl
+from transformers import TrainerCallback, TrainingArguments, TrainerState, TrainerControl, Trainer
+
+import logger
 
 from dataclasses import dataclass
 
@@ -52,3 +54,15 @@ class TeacherUpdateCallback(TrainerCallback):
         **kwargs,
     ):
         self.model.update_teacher(self.momentum)
+
+
+class NirvanaCheckpointTrainer(Trainer):
+    def _save_checkpoint(self, model, trial, metrics=None):
+        super()._save_checkpoint(model, trial, metrics)
+        if self.is_world_process_zero():
+            try:
+                import nirvana_dl.snapshot as snap
+                snap.dump_snapshot()
+                logger.info('Checkpoint saved to snapshots.')
+            except Exception as e:
+                logger.info(f'Checkpoint not saved to snapshots: {e}')

@@ -33,7 +33,3 @@ WANDB_DISABLED=True torchrun --nproc_per_node=$N_GPUS --master_port=$PORT1 main.
 --patch_size 16 \
 --image_size 224 \
 --mask_ratio 0.6 \
-
-
-#--train_dir //home/yr/ILSVRC/train \
-#--validation_dir //home/yr/ILSVRC/val \
