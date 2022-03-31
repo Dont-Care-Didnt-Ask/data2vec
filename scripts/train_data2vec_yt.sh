@@ -17,9 +17,9 @@ WANDB_DISABLED=True torchrun --nproc_per_node=$N_GPUS --master_port=$PORT1 main.
 --dataset_class ImagenetIterableYTDataset \
 --train_dir //home/yr/ILSVRC/train \
 --validation_dir //home/yr/ILSVRC/val \
+--save_steps 6250 \
 --dataloader_num_workers 16 \
 --num_readers 4 \
---ddp_find_unused_parameters False \
 --do_train \
 --learning_rate 2e-3 \
 --num_train_epochs $N_EPOCHS \
@@ -33,3 +33,9 @@ WANDB_DISABLED=True torchrun --nproc_per_node=$N_GPUS --master_port=$PORT1 main.
 --patch_size 16 \
 --image_size 224 \
 --mask_ratio 0.6 \
+ \
+--ddp_find_unused_parameters False \
+--report_to none \
+--logging_steps 5 \
+--run_name default_debugging_yt \
+--disable_tqdm True \

@@ -2,7 +2,7 @@ PORT1=31337
 
 MINIBATCH_SIZE=128
 BATCH_SIZE=2048
-N_EPOCHS=1
+N_EPOCHS=800
 N_GPUS=8
 WARMUP_EPOCHS=40
 
@@ -17,9 +17,9 @@ torchrun --nproc_per_node=$N_GPUS --master_port=$PORT1 main.py \
 --dataset_class ImageFolder \
 --train_dir $INPUT_PATH/imagenet_trainval/train \
 --validation_dir $INPUT_PATH/imagenet_trainval/train \
+--save_steps 6250 \
 --dataloader_num_workers 32 \
 --num_readers 4 \
---ddp_find_unused_parameters False \
 --do_train \
 --learning_rate 2e-3 \
 --num_train_epochs $N_EPOCHS \
@@ -33,3 +33,9 @@ torchrun --nproc_per_node=$N_GPUS --master_port=$PORT1 main.py \
 --patch_size 16 \
 --image_size 224 \
 --mask_ratio 0.6 \
+ \
+--ddp_find_unused_parameters False \
+--report_to wandb \
+--logging_steps 5 \
+--run_name default_nirvana \
+--disable_tqdm True \
