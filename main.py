@@ -13,6 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 
+import scipy.stats
 import logging
 import os
 import sys
@@ -23,7 +24,6 @@ import torch
 import transformers
 from transformers import (
     HfArgumentParser,
-    Trainer,
     TrainingArguments,
 )
 from transformers.trainer_utils import get_last_checkpoint

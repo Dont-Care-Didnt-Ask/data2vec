@@ -4,7 +4,7 @@ from transformers.modeling_outputs import BaseModelOutput
 from transformers import ViTConfig
 from transformers import TrainerCallback, TrainingArguments, TrainerState, TrainerControl, Trainer
 
-import logger
+import logging
 
 from dataclasses import dataclass
 
@@ -55,6 +55,7 @@ class TeacherUpdateCallback(TrainerCallback):
     ):
         self.model.update_teacher(self.momentum)
 
+logger = logging.getLogger(__name__)
 
 class NirvanaCheckpointTrainer(Trainer):
     def _save_checkpoint(self, model, trial, metrics=None):
