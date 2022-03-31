@@ -30,7 +30,7 @@ from transformers.trainer_utils import get_last_checkpoint
 from transformers.utils import check_min_version
 from transformers.utils.versions import require_version
 
-from data2vec_utils import TeacherUpdateCallback
+from data2vec_utils import TeacherUpdateCallback, NirvanaCheckpointTrainer
 from data2vec_model import ViTForData2Vec, ViTConfigForData2Vec
 from data_processing.data2vec_datasets import build_data2vec_dataset, data2vec_collator
 from model_and_data_args import ModelArguments, DataTrainingArguments
@@ -180,7 +180,7 @@ def main():
         num_training_steps=training_args.max_steps
     )
 
-    trainer = Trainer(
+    trainer = NirvanaCheckpointTrainer(
         model=model,
         args=training_args,
         train_dataset=ds["train"] if training_args.do_train else None,
@@ -221,10 +221,6 @@ def main():
     else:
         trainer.create_model_card(**kwargs)
 
-    if model_args.experiment_name:
-        exp_name = model_args.experiment_name
-        torch.save(model.state_dict(), f"checkpoints/{exp_name}_model.pth")
-        torch.save(opt.state_dict(), f"checkpoints/{exp_name}_optimizer.pth")
 
 if __name__ == "__main__":
     main()
