@@ -3,7 +3,7 @@ PORT1=31337
 MINIBATCH_SIZE=128
 BATCH_SIZE=2048
 N_EPOCHS=1
-N_GPUS=2
+N_GPUS=8
 WARMUP_EPOCHS=40
 
 IMAGENET_SIZE=1281167
@@ -15,8 +15,8 @@ torchrun --nproc_per_node=$N_GPUS --master_port=$PORT1 main.py \
 --output_dir $SNAPSHOT_PATH \
 --overwrite_output_dir \
 --dataset_class ImageFolder \
---train_dir $INPUT_PATH/test_imagenet_5classes/train \
---validation_dir $INPUT_PATH/test_imagenet_5classes/train \
+--train_dir $INPUT_PATH/imagenet_trainval/train \
+--validation_dir $INPUT_PATH/imagenet_trainval/train \
 --dataloader_num_workers 32 \
 --num_readers 4 \
 --ddp_find_unused_parameters False \
