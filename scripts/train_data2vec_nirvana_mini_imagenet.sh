@@ -17,7 +17,8 @@ torchrun --nproc_per_node=$N_GPUS --master_port=$PORT1 main.py \
 --dataset_class ImageFolder \
 --train_dir $INPUT_PATH/test_imagenet_5classes/train \
 --validation_dir $INPUT_PATH/test_imagenet_5classes/train \
---save_steps 6250 \
+--save_steps 100 \
+--save_total_limit 3 \
 --dataloader_num_workers 32 \
 --num_readers 4 \
 --do_train \
@@ -37,5 +38,5 @@ torchrun --nproc_per_node=$N_GPUS --master_port=$PORT1 main.py \
 --ddp_find_unused_parameters False \
 --report_to wandb \
 --logging_steps 5 \
---run_name mini_imagenet_nirvana \
+--run_name mini_imagenet_nirvana_checkpoint_more_often \
 --disable_tqdm True \
