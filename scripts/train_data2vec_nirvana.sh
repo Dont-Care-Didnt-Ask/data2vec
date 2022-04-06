@@ -15,8 +15,8 @@ torchrun --nproc_per_node=$N_GPUS --master_port=$PORT1 main.py \
 --output_dir $SNAPSHOT_PATH \
 --overwrite_output_dir \
 --dataset_class ImageFolder \
---train_dir $INPUT_PATH/imagenet_trainval/train \
---validation_dir $INPUT_PATH/imagenet_trainval/val \
+--train_dir $INPUT_PATH/mnt/data/imagenet/train \
+--validation_dir $INPUT_PATH/mnt/data/imagenet/val \
 --save_steps 6250 \
 --dataloader_num_workers 32 \
 --num_readers 4 \
