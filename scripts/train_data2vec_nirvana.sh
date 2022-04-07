@@ -36,7 +36,7 @@ torchrun --nproc_per_node=$N_GPUS --master_port=$PORT1 main.py \
 --image_size 224 \
 --mask_ratio 0.6 \
  \
---ddp_find_unused_parameters False \
+--ddp_find_unused_parameters True \
 --report_to wandb \
 --logging_steps 5 \
 --run_name default_nirvana \
