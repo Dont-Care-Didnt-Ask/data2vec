@@ -17,11 +17,12 @@ torchrun --nproc_per_node=$N_GPUS --master_port=$PORT1 main.py \
 --dataset_class ImageFolder \
 --train_dir $INPUT_PATH/test_imagenet_5classes/train \
 --validation_dir $INPUT_PATH/test_imagenet_5classes/train \
---save_steps 100 \
---save_total_limit 3 \
 --dataloader_num_workers 32 \
 --num_readers 4 \
 --do_train \
+--fp16 True \
+--save_steps 100 \
+--save_total_limit 3 \
 --learning_rate 2e-3 \
 --num_train_epochs $N_EPOCHS \
 --per_device_train_batch_size $MINIBATCH_SIZE \

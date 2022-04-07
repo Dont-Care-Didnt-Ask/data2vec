@@ -17,10 +17,12 @@ WANDB_DISABLED=True torchrun --nproc_per_node=$N_GPUS --master_port=$PORT1 main.
 --dataset_class ImagenetIterableYTDataset \
 --train_dir //home/yr/ILSVRC/train \
 --validation_dir //home/yr/ILSVRC/val \
---save_steps 6250 \
 --dataloader_num_workers 16 \
 --num_readers 4 \
 --do_train \
+--fp16 True \
+--save_steps 6250 \
+--save_total_limit 3 \
 --learning_rate 2e-3 \
 --num_train_epochs $N_EPOCHS \
 --per_device_train_batch_size $MINIBATCH_SIZE \
