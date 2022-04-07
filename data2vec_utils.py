@@ -1,4 +1,5 @@
 import torch
+import torch.distributed as dist
 from transformers.file_utils import ModelOutput
 from transformers.modeling_outputs import BaseModelOutput
 from transformers import ViTConfig
@@ -26,10 +27,22 @@ class Data2VecOutput(ModelOutput):
             Averaged teacher hidden layer representations.
         prediction (`torch.FloatTensor` of shape `(batch_size, n_patches, embed_dim)`):
             Student prediction of target.
+        teacher_hidden_states: (`tuple` of `torch.FloatTensor` of shape `(batch_size, n_patches, embed_dim)` of length n_layers + 1):
+            Teacher hidden states.
+        student_hidden_states: (`tuple` of `torch.FloatTensor` of shape `(batch_size, n_patches, embed_dim)` of length n_layers + 1):
+            Student hidden states.
+        teacher_attentions: (`tuple` of `torch.FloatTensor` of shape `(batch_size, num_heads, n_patches, n_patches)` of length n_layers):
+            Teacher attentions.
+        student_attentions: (`tuple` of `torch.FloatTensor` of shape `(batch_size, num_heads, n_patches, n_patches)` of length n_layers):
+            Student attentions.
     """
     loss: torch.FloatTensor
     target: Optional[torch.FloatTensor]
     prediction: Optional[torch.FloatTensor]
+    teacher_hidden_states: Optional[torch.Tensor] = None
+    student_hidden_states: Optional[torch.Tensor] = None
+    teacher_attentions: Optional[torch.Tensor] = None
+    student_attentions: Optional[torch.Tensor] = None
 
 
 class ViTConfigForData2Vec(ViTConfig):
@@ -54,6 +67,27 @@ class TeacherUpdateCallback(TrainerCallback):
         **kwargs,
     ):
         self.model.update_teacher(self.momentum)
+
+
+class CheckpointTeacher(TrainerCallback):
+    def __init__(self, model: torch.nn.Module, save_each_n_epochs: int):
+        self.model = model
+        self.save_each_n_epochs = save_each_n_epochs
+        self.current_epoch = 0
+    
+    def on_epoch_end(
+        self,
+        args: TrainingArguments,
+        state: TrainerState,
+        control: TrainerControl,
+        **kwargs
+    ):
+        self.current_epoch += 1
+
+        if (self.current_epoch + 1) % self.save_each_n_epochs == 0 and dist.get_rank() == 0:
+            path = args.output_dir + f"/teacher_epoch_{self.current_epoch}.pth"
+            torch.save(self.model.teacher.state_dict(), path)
+
 
 logger = logging.getLogger(__name__)
 

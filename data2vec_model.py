@@ -1,3 +1,4 @@
+from curses import use_default_colors
 from transformers.models.vit.modeling_vit import ViTEmbeddings, ViTLayer, ViTPreTrainedModel
 
 import torch
@@ -7,6 +8,8 @@ import torch.nn.functional as F
 from data2vec_utils import Data2VecEncoderOutput, Data2VecOutput, ViTConfigForData2Vec
 
 class ViTEncoderForData2Vec(nn.Module):
+    supports_data2vec_target = True    
+
     def __init__(self, config):
         super().__init__()
         self.config = config
@@ -75,82 +78,17 @@ class ViTEncoderForData2Vec(nn.Module):
         )
 
 
-class ViTSingleModelForData2Vec(ViTPreTrainedModel):
-    supports_data2vec_target = True
-
-    def __init__(self, config, use_mask_token=True):
-        super().__init__(config)
-        self.config = config
-
-        self.embeddings = ViTEmbeddings(config, use_mask_token=use_mask_token)
-        self.encoder = ViTEncoderForData2Vec(config)
-
-        self.post_init()
-
-    def forward(
-        self,
-        pixel_values=None,
-        bool_masked_pos=None,
-        head_mask=None,
-        output_attentions=None,
-        output_hidden_states=None,
-        interpolate_pos_encoding=None,
-        return_dict=None,
-        compute_data2vec_target=False,
-    ):
-        output_attentions = output_attentions if output_attentions is not None else self.config.output_attentions
-        output_hidden_states = (
-            output_hidden_states if output_hidden_states is not None else self.config.output_hidden_states
-        )
-        return_dict = return_dict if return_dict is not None else self.config.use_return_dict
-
-        if pixel_values is None:
-            raise ValueError("You have to specify pixel_values")
-
-        # Prepare head mask if needed
-        # 1.0 in head_mask indicate we keep the head
-        # attention_probs has shape bsz x n_heads x N x N
-        # input head_mask has shape [num_heads] or [num_hidden_layers x num_heads]
-        # and head_mask is converted to shape [num_hidden_layers x batch x num_heads x seq_length x seq_length]
-        head_mask = self.get_head_mask(head_mask, self.config.num_hidden_layers)
-
-        embedding_output = self.embeddings(
-            pixel_values, bool_masked_pos=bool_masked_pos, interpolate_pos_encoding=interpolate_pos_encoding
-        )
-
-        encoder_outputs = self.encoder(
-            embedding_output,
-            head_mask=head_mask,
-            output_attentions=output_attentions,
-            output_hidden_states=output_hidden_states,
-            return_dict=return_dict,
-            compute_data2vec_target=compute_data2vec_target
-        )
-
-        return encoder_outputs
-        # sequence_output = encoder_outputs[0]
-        # sequence_output = self.layernorm(sequence_output)
-        # pooled_output = self.pooler(sequence_output) if self.pooler is not None else None
-
-        # if not return_dict:
-        #     return (sequence_output, pooled_output) + encoder_outputs[1:]
-
-        # return BaseModelOutputWithPooling(
-        #     last_hidden_state=sequence_output,
-        #     pooler_output=pooled_output,
-        #     hidden_states=encoder_outputs.hidden_states,
-        #     attentions=encoder_outputs.attentions,
-        # )
-
-
 class ViTForData2Vec(ViTPreTrainedModel):
     def __init__(self, config):
         nn.Module.__init__(self)
         self.config = config
 
         # TODO: init same
-        self.student = ViTSingleModelForData2Vec(config)
-        self.teacher = ViTSingleModelForData2Vec(config)
+        self.embeddings = ViTEmbeddings(config, use_mask_token=True)
+        self.student = ViTEncoderForData2Vec(config)
+        self.teacher = ViTEncoderForData2Vec(config)
+
+        self.post_init()
 
         # copy student parameters to teacher
         self.update_teacher(0.)
@@ -167,23 +105,70 @@ class ViTForData2Vec(ViTPreTrainedModel):
         self,
         pixel_values=None,
         bool_masked_pos=None,
-        **kwargs,
-        #head_mask=None,
-        #output_attentions=None,
-        #output_hidden_states=None,
-        #interpolate_pos_encoding=None,
-        #return_dict=None,
+        head_mask=None,
+        output_attentions=None,
+        output_hidden_states=None,
+        interpolate_pos_encoding=None,
+        return_dict=True,
     ):
+        assert return_dict, "return_dict=False is not supported yet"
+        assert head_mask is None, "head_mask is not supported yet"
+        # Prepare head mask if needed
+        # 1.0 in head_mask indicate we keep the head
+        # attention_probs has shape bsz x n_heads x N x N
+        # input head_mask has shape [num_heads] or [num_hidden_layers x num_heads]
+        # and head_mask is converted to shape [num_hidden_layers x batch x num_heads x seq_length x seq_length]
+        ## head_mask = self.get_head_mask(head_mask, self.config.num_hidden_layers)
+
+        output_attentions = output_attentions if output_attentions is not None else self.config.output_attentions
+        output_hidden_states = (
+            output_hidden_states if output_hidden_states is not None else self.config.output_hidden_states
+        )
+        return_dict = return_dict if return_dict is not None else self.config.use_return_dict
+
+        if pixel_values is None:
+            raise ValueError("You have to specify pixel_values")
+
         with torch.no_grad():
-            outputs = self.teacher(pixel_values, bool_masked_pos=None, compute_data2vec_target=True, **kwargs)
-            target = outputs.data2vec_target
-        
-        prediction = self.student(pixel_values, bool_masked_pos, compute_data2vec_target=False, **kwargs)[0]
+            embedding_output = self.embeddings(
+                pixel_values,
+                bool_masked_pos=None,
+                interpolate_pos_encoding=interpolate_pos_encoding
+            )
+
+            teacher_outputs = self.teacher(
+                embedding_output,
+                head_mask=head_mask,
+                output_attentions=output_attentions,
+                output_hidden_states=output_hidden_states,
+                compute_data2vec_target=True
+            )
+            target = teacher_outputs.data2vec_target
+
+        masked_embedding_output = self.embeddings(
+            pixel_values,
+            bool_masked_pos=bool_masked_pos,
+            interpolate_pos_encoding=interpolate_pos_encoding
+        )
+
+        student_outputs = self.student(
+            masked_embedding_output, 
+            head_mask=head_mask,
+            output_attentions=output_attentions,
+            output_hidden_states=output_hidden_states,
+            compute_data2vec_target=False
+        )
+
+        prediction = student_outputs.last_hidden_state
 
         loss = F.huber_loss(prediction, target, delta=self.config.huber_loss_delta)
 
         return Data2VecOutput(
             loss=loss,
             target=target,
-            prediction=prediction
+            prediction=prediction,
+            teacher_hidden_states=teacher_outputs.hidden_states,
+            teacher_attentions=teacher_outputs.attentions,
+            student_hidden_states=student_outputs.hidden_states,
+            student_attentions=student_outputs.attentions
         )

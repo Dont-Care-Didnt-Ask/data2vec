@@ -30,7 +30,7 @@ from transformers.trainer_utils import get_last_checkpoint
 from transformers.utils import check_min_version
 from transformers.utils.versions import require_version
 
-from data2vec_utils import TeacherUpdateCallback, NirvanaCheckpointTrainer
+from data2vec_utils import CheckpointTeacher, TeacherUpdateCallback, NirvanaCheckpointTrainer
 from data2vec_model import ViTForData2Vec, ViTConfigForData2Vec
 from data_processing.data2vec_datasets import build_data2vec_dataset, data2vec_collator
 from model_and_data_args import ModelArguments, DataTrainingArguments
@@ -187,7 +187,7 @@ def main():
         eval_dataset=ds["validation"] if training_args.do_eval else None,
         optimizers=(opt, scheduler),
         data_collator=data2vec_collator,
-        callbacks=[TeacherUpdateCallback(model, model_args.momentum)],
+        callbacks=[TeacherUpdateCallback(model, model_args.momentum), CheckpointTeacher(model, 5)],
     )
 
     # Training
