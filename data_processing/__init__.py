@@ -1,3 +1,4 @@
 from data_processing.beit_mask_generator import BEiTMaskingGenerator
 from data_processing.simple_mask_generator import SimpleMaskGenerator
 from data_processing.yt_dataset import ImagenetIterableYTDataset
+from data_processing.data2vec_datasets import build_data2vec_dataset
