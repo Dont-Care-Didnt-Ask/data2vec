@@ -1,4 +1,3 @@
-from curses import use_default_colors
 from transformers.models.vit.modeling_vit import ViTEmbeddings, ViTLayer, ViTPreTrainedModel
 
 import torch
@@ -15,7 +14,6 @@ class ViTEncoderForData2Vec(nn.Module):
         self.config = config
         self.layer = nn.ModuleList([ViTLayer(config) for _ in range(config.num_hidden_layers)])
         self.gradient_checkpointing = False
-        self.supports_data2vec_target = True
 
     def forward(
         self,

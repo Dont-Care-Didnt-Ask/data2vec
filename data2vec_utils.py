@@ -37,8 +37,8 @@ class Data2VecOutput(ModelOutput):
             Student attentions.
     """
     loss: torch.FloatTensor
-    target: Optional[torch.FloatTensor]
-    prediction: Optional[torch.FloatTensor]
+    target: Optional[torch.FloatTensor] = None
+    prediction: Optional[torch.FloatTensor] = None
     teacher_hidden_states: Optional[torch.Tensor] = None
     student_hidden_states: Optional[torch.Tensor] = None
     teacher_attentions: Optional[torch.Tensor] = None
