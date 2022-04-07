@@ -3,5 +3,5 @@
 /recycle_bin
 /checkpoints
 **/__pycache__
-/.ipynb_checkpoints
+**/.ipynb_checkpoints
 scripts/my_launch.sh
