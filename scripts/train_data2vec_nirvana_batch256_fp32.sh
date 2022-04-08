@@ -20,7 +20,7 @@ torchrun --nproc_per_node=$N_GPUS --master_port=$PORT1 main.py \
 --dataloader_num_workers 32 \
 --num_readers 4 \
 --do_train \
---fp16 True \
+--fp16 False \
 --save_steps 6250 \
 --save_total_limit 3 \
 --learning_rate 2e-3 \
