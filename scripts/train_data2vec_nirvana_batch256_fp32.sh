@@ -21,8 +21,8 @@ torchrun --nproc_per_node=$N_GPUS --master_port=$PORT1 main.py \
 --num_readers 4 \
 --do_train \
 --fp16 False \
---save_steps 6250 \
---save_total_limit 3 \
+--save_steps 31250 \
+--resume_from_checkpoint True \
 --learning_rate 2e-3 \
 --num_train_epochs $N_EPOCHS \
 --per_device_train_batch_size $MINIBATCH_SIZE \
@@ -39,5 +39,5 @@ torchrun --nproc_per_node=$N_GPUS --master_port=$PORT1 main.py \
 --ddp_find_unused_parameters True \
 --report_to wandb \
 --logging_steps 5 \
---run_name nirvana_batch256_fp32 \
+--run_name nirvana_batch256_fp32_checkpoints_less_often \
 --disable_tqdm True \
