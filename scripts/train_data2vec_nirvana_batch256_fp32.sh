@@ -22,7 +22,6 @@ torchrun --nproc_per_node=$N_GPUS --master_port=$PORT1 main.py \
 --do_train \
 --fp16 False \
 --save_steps 31250 \
---resume_from_checkpoint True \
 --learning_rate 2e-3 \
 --num_train_epochs $N_EPOCHS \
 --per_device_train_batch_size $MINIBATCH_SIZE \
