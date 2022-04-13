@@ -187,7 +187,7 @@ def main():
         eval_dataset=ds["validation"] if training_args.do_eval else None,
         optimizers=(opt, scheduler),
         data_collator=data2vec_collator,
-        callbacks=[TeacherUpdateCallback(model, model_args.momentum), CheckpointTeacher(model, 5)],
+        callbacks=[TeacherUpdateCallback(model, model_args.momentum), CheckpointTeacher(model, 10)],
     )
 
     # Training
