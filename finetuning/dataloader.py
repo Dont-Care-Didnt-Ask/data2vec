@@ -3,8 +3,8 @@ from torchvision import datasets, transforms, models
 from timm.data import create_transform
 
 
-def build_dataloader(batch_size):
-    traindir = "/mnt/downloads/imagenet/train"
+def build_dataloader(batch_size, data_path):
+    traindir = data_path + "train"
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                      std=[0.229, 0.224, 0.225])
 
@@ -30,7 +30,7 @@ def build_dataloader(batch_size):
         drop_last=True
     )
 
-    valdir = "/mnt/downloads/imagenet/val"
+    valdir = data_path + "val"
 
     val_dataset = datasets.ImageFolder(
         valdir,
