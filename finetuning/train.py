@@ -1,11 +1,13 @@
-import torch
-from tqdm import tqdm
 import time
 
-from metrics import accuracy
+import torch
+from tqdm import tqdm
+import wandb
+
+from finetuning.metrics import accuracy
 
 
-def train(train_loader, model, criterion, optimizer, scheduler, epoch, device, writer_train,
+def train(train_loader, model, criterion, optimizer, schedule, epoch, device, writer_train,
           req_num_iterations, mixup_fn):
     print_freq = 100
 
@@ -29,16 +31,22 @@ def train(train_loader, model, criterion, optimizer, scheduler, epoch, device, w
         # compute output
         output = model(images)
         loss = criterion(output, target)
-        loss.backward()
+        (loss / req_num_iterations).backward()
 
         # measure accuracy
         acc = accuracy(output, torch.argmax(target, dim=1))
 
         # compute gradient and do SGD step
         if (i + 1) % req_num_iterations == 0:
+            #scheduler.step_update(epoch * len(train_loader) + i) -- substituted with manual scheduling
+
+            if schedule is not None:
+                it = (len(train_loader) // req_num_iterations) * epoch + i // req_num_iterations
+                for param_group in optimizer.param_groups:
+                    param_group['lr'] = schedule[it] * param_group['lr_scale']
+
             torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
             optimizer.step()
-            scheduler.step_update(epoch * len(train_loader) + i)
             optimizer.zero_grad()
 
         # measure elapsed time
@@ -51,10 +59,19 @@ def train(train_loader, model, criterion, optimizer, scheduler, epoch, device, w
 
         T.set_description(f"Epoch {epoch}, loss: {loss_epoch / count_els:.5f}, " + \
                           f"accuracy: {acc_epoch / count_els:.5f}, data_time: {data_time:.3f}, " + \
-                          f"batch_time: {batch_time:.3f}, lr: {optimizer.param_groups[0]['lr']:.8f}",
+                          f"batch_time: {batch_time:.3f}, lr_embed: {optimizer.param_groups[0]['lr']:.7f}, " + \
+                          f"lr_head: {optimizer.param_groups[-1]['lr']:.7f}",
                           refresh=False)
 
-        if i % print_freq == 0:
-            training_iter = epoch * len(train_loader) + i
+        if (i + 1) % print_freq == 0:
+            training_iter = epoch * (len(train_loader) // req_num_iterations) + i // req_num_iterations
             writer_train.add_scalar('train_loss', loss_epoch / count_els, global_step=training_iter)
             writer_train.add_scalar('train_accuracy', acc_epoch / count_els, global_step=training_iter)
+
+            wandb.log({
+                'training_iter': training_iter,
+                'train_loss': loss_epoch / count_els,
+                'train_accuracy': acc_epoch / count_els,
+                'learning_rate_zero_group': optimizer.param_groups[0]['lr'],
+                'learning_rate_last_group': optimizer.param_groups[-1]['lr']
+            })

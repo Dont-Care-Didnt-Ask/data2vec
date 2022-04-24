@@ -3,7 +3,7 @@ from tqdm import tqdm
 import time
 import torch.nn as nn
 
-from metrics import accuracy
+from finetuning.metrics import accuracy
 
 
 def validate(val_loader, model, epoch, device, writer_val):
