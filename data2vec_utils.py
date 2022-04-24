@@ -86,7 +86,8 @@ class CheckpointTeacher(TrainerCallback):
 
         if (self.current_epoch + 1) % self.save_each_n_epochs == 0 and dist.get_rank() == 0:
             path = args.output_dir + f"/teacher_epoch_{self.current_epoch}.pth"
-            torch.save(self.model.teacher.state_dict(), path)
+            torch.save({"teacher_encoder": self.model.teacher.state_dict(), 
+                        "embeddings": self.model.embeddings.state_dict()}, path)
 
 
 logger = logging.getLogger(__name__)
