@@ -1,8 +1,10 @@
+import scipy.stats
 import timm
 import torch
 import torch.nn as nn
 import numpy as np
 import random
+import os
 
 from timm.data import Mixup
 from timm.loss import SoftTargetCrossEntropy
@@ -25,11 +27,11 @@ def main(model_name):
     config = dotdict({
         "seed": 1337,
         "checkpoint_path": "checkpoints/checkpoint-437500/pytorch_model.bin",
-        "data_path": "/mnt/data/imagenet/",
+        "data_path": f"{os.getenv('INPUT_PATH')}/mnt/data/imagenet/",
         "batch_size": 512,
-        "req_batch_size": 1024,
+        "req_batch_size": 4096,
         "n_epochs": 100,
-        "device_ids": [0, 1],
+        "device_ids": list(range(8)),
         "warmup_epochs": 10,
         "optimizer": "adamw",
         "scheduler": "cosine",
