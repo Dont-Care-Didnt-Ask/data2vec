@@ -29,9 +29,9 @@ def main(model_name):
         "checkpoint_path": "checkpoints/checkpoint-437500/pytorch_model.bin",
         "data_path": f"{os.getenv('INPUT_PATH')}/mnt/data/imagenet/",
         "batch_size": 512,
-        "req_batch_size": 4096,
+        "req_batch_size": 1024,
         "n_epochs": 100,
-        "device_ids": list(range(8)),
+        "device_ids": list(range(2)),
         "warmup_epochs": 10,
         "optimizer": "adamw",
         "scheduler": "cosine",
@@ -119,13 +119,12 @@ def main(model_name):
                      prob=config.mixup_prob, switch_prob=config.mixup_switch_prob, mode=config.mixup_mode,
                      label_smoothing=config.label_smoothing, num_classes=config.n_classes)
     start_epoch = -1
-    saved_model_path = None #"/home/meshchaninov/MLBEP/saved_models/swin-v-1.2_20220410/Epoch: 296, acc: 0.79867"
-    
+    saved_model_path = None #"/home/myyycroft/repos/data2vec/checkpoints/vit_data2vec_2022_04_25_11h/Epoch: 19, acc: 0.16450"
+
     if saved_model_path:
         state = torch.load(saved_model_path)
         model.load_state_dict(state["state_dict"])
         optimizer.load_state_dict(state["optimizer"])
-        scaler.load_state_dict(state["scaler"])
         start_epoch = state["epoch"]
 
     main_worker(config.n_epochs, model, optimizer, criterion, schedule, scaler, model_name, train_loader, val_loader,

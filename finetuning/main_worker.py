@@ -10,8 +10,11 @@ from finetuning.validation import validate
 
 def main_worker(num_epochs, model, opt, criterion, schedule, scaler, model_name, train_loader, val_loader,
                 req_batch_size, device, mixup_fn, config, start_epoch=0):
-    log_dir = f"/home/myyycroft/repos/data2vec/outputs/{model_name}_{datetime.datetime.now().strftime('%Y_%m_%d_%Hh')}"
-    save_dir = f"/home/myyycroft/repos/data2vec/checkpoints/{model_name}_{datetime.datetime.now().strftime('%Y_%m_%d_%Hh')}"
+    #log_dir = f"/home/myyycroft/repos/data2vec/outputs/{model_name}_{datetime.datetime.now().strftime('%Y_%m_%d_%Hh')}"
+    #save_dir = f"/home/myyycroft/repos/data2vec/checkpoints/{model_name}_{datetime.datetime.now().strftime('%Y_%m_%d_%Hh')}"
+    snapshot_dir = os.getenv("SNAPSHOT_PATH")
+    log_dir = f"{snapshot_dir}/outputs/{model_name}_{datetime.datetime.now().strftime('%Y_%m_%d_%Hh')}"
+    save_dir = f"{snapshot_dir}/checkpoints/{model_name}_{datetime.datetime.now().strftime('%Y_%m_%d_%Hh')}"
 
     os.makedirs(log_dir, exist_ok=True)
     os.makedirs(save_dir, exist_ok=True)
